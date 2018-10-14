@@ -19,7 +19,11 @@ class GetMfInfo(Resource):
         print('request type:',request_type)
         dict_response = {}
 
+        if request_type=='test':
+            dict_response['response']='test success'
+            return make_response(jsonify(dict_response), 200)
         # possible parameters: numer_sta, period_init, period_end , varname
+
 
         if request_type=='get_info_for_station' and 'numer_sta' in request.args :
 
