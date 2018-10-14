@@ -1,0 +1,29 @@
+numer_sta : 07005
+
+http://localhost:5000/get_info_for_station?numer_sta=07005
+
+
+period_end=1539349200
+period_init=1528786800
+http://localhost:5000/get_info_for_station?numer_sta=07005&period_end=1539349200&period_init=1528786800
+
+
+period_end=1539349200
+period_init=1528786800
+varname=dd
+http://localhost:5000/get_info_for_station?numer_sta=07005&period_end=1539349200&period_init=1528786800&varname=dd
+
+
+http://localhost:5000/get_info_for_station?numer_sta=07005&varname=dd
+
+
+
+
+
+get historical record for a certain datetime
+
+http://localhost:5000/get_hist?numer_sta=07005&&timestamp=1539349200
+
+http://localhost:5000/get_hist?numer_sta=07005&varname=pmer&timestamp=1538712000
+
+http://localhost:5000/get_hist?numer_sta=07005&timestamp=1538712000&window_range=5
