@@ -1,5 +1,5 @@
 from elasticsearch import Elasticsearch
-from configuration import Configuration
+from app.configuration import Configuration
 import datetime
 
 class ESQ():

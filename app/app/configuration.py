@@ -1,8 +1,8 @@
 import os
 class Configuration():
-    APP_HOST='localhost'
+    APP_HOST='0.0.0.0'
     APP_DEBUG=True
-    APP_PORT=5000
+    APP_PORT=80
     ELASTICSEARCH_SERVER_IP='172.17.0.2'
     ELASTICSEARCH_SERVER_PORT='9200'
     MF_SYNOP_INDEX='mf_synop'

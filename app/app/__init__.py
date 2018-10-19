@@ -1,1 +1,1 @@
-from configuration import *
+from app.configuration import *

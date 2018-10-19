@@ -5,10 +5,10 @@ from flask import jsonify
 from flask import make_response
 import time
 import datetime
-from configuration import Configuration
+from app.configuration import Configuration
 
 from flask_cors import CORS
-from requests_es import ESQ
+from app.requests_es import ESQ
 
 app =Flask(__name__)
 CORS(app)
