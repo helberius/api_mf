@@ -26,6 +26,7 @@ class ESQ():
 
     @staticmethod
     def get_info_for_station_for_period(numer_sta, period_init, period_end):
+        print('---parameters:', numer_sta, period_init, period_end)
         """ To get the group observations for a defined window frame """
         dict_query = {"sort":[{"date_iso":"desc"}],"from":0, "size":Configuration.MAX_RESULTS ,
                       "query":{
@@ -39,6 +40,8 @@ class ESQ():
         ls_g_obs=[]
         for x in result_query['hits']['hits']:
             ls_g_obs.append(x['_source'])
+
+        print(dict_query)
 
         return ls_g_obs
 
@@ -270,7 +273,10 @@ class ESQ():
             for x in range(init_data_year, (end_data_year+1)):
 
                 x_init = datetime.datetime(x, x_init_date.month, x_init_date.day, 0, 0, 0)
-                x_end = datetime.datetime(x, x_end_date.month, x_init_date.day, 0, 0, 0)
+                x_end = datetime.datetime(x, x_end_date.month, x_end_date.day, 0, 0, 0)
 
-                ls_obs[x]=ESQ.get_info_for_station_for_period(numer_sta,x_init.timestamp(),x_end.timestamp())
+                print(init_timestamp, int(x_init.timestamp()))
+                print(end_timestamp, int(x_end.timestamp()))
+
+                ls_obs[x]=ESQ.get_info_for_station_for_period(numer_sta,int(x_init.timestamp()),int(x_end.timestamp()))
             return ls_obs
