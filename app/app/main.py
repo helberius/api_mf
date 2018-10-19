@@ -5,7 +5,7 @@ from flask import jsonify
 from flask import make_response
 import time
 import datetime
-from configuration import *
+from configuration import Configuration
 
 from flask_cors import CORS
 from requests_es import ESQ
@@ -53,7 +53,15 @@ class GetMfInfo(Resource):
 
             else:
                 print('getting the most recent info for a specific station')
-                ls_g_obs = ESQ.get_most_recent_info_for_station(numer_sta)
+                max_obs=None
+                try:
+                    max_obs=int(request.args.get('max_obs'))
+                except Exception as err:
+                    print ('error in max nr of observations')
+                    max_obs=Configuration.MAX_RESULTS_MOST_RECENT
+
+                ls_g_obs = ESQ.get_most_recent_info_for_station(numer_sta, max_obs)
+
                 dict_response['g_obs'] = ls_g_obs
 
         elif request_type == 'get_hist' and 'numer_sta' in request.args and 'timestamp' in request.args:
@@ -73,6 +81,13 @@ class GetMfInfo(Resource):
                 ls_g_obs = ESQ.get_hist_for_station(numer_sta, None, timestamp)
                 dict_response['g_obs'] = ls_g_obs
 
+        elif request_type == 'get_hist' and 'numer_sta' in request.args and 'period_init' in request.args and 'period_end' in request.args:
+            numer_sta=request.args.get('numer_sta')
+            period_init=request.args.get('period_init')
+            period_end=request.args.get('period_end')
+            ls_g_obs = ESQ.get_hist_for_station_time_period(numer_sta, period_init, period_end)
+            dict_response['g_obs'] = ls_g_obs
+
 
         else:
             dict_response['response']='request not supported'
@@ -84,4 +99,4 @@ api.add_resource(GetMfInfo,'/<request_type>')
 
 
 if __name__ == '__main__':
-    app.run(host=APP_HOST, debug = APP_DEBUG, port = APP_PORT)
+    app.run(host=Configuration.APP_HOST, debug = Configuration.APP_DEBUG, port = Configuration.APP_PORT)

@@ -1,9 +1,9 @@
 from elasticsearch import Elasticsearch
-from configuration import *
+from configuration import Configuration
 import datetime
 
 class ESQ():
-    es = Elasticsearch([{'host': ELASTICSEARCH_SERVER_IP, 'port': ELASTICSEARCH_SERVER_PORT}])
+    es = Elasticsearch([{'host': Configuration.ELASTICSEARCH_SERVER_IP, 'port': Configuration.ELASTICSEARCH_SERVER_PORT}])
 
     def __init__(self):
         print('init of class ESQ')
@@ -11,12 +11,12 @@ class ESQ():
 
 
     @staticmethod
-    def get_most_recent_info_for_station(numer_sta):
-        """ To get the 1000 most recent observation groups of a given station """
-        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": 1000,
+    def get_most_recent_info_for_station(numer_sta, max_obs):
+        """ To get the max_obs most recent observation groups of a given station """
+        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": max_obs,
                       "query": {"match": {'numer_sta': numer_sta}}}
 
-        result_query = ESQ.es.search(index=MF_SYNOP_INDEX,body=dict_query)
+        result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX,body=dict_query)
 
         ls_g_obs=[]
         for x in result_query['hits']['hits']:
@@ -27,7 +27,7 @@ class ESQ():
     @staticmethod
     def get_info_for_station_for_period(numer_sta, period_init, period_end):
         """ To get the group observations for a defined window frame """
-        dict_query = {"sort":[{"date_iso":"desc"}],"from":0, "size":1000 ,
+        dict_query = {"sort":[{"date_iso":"desc"}],"from":0, "size":Configuration.MAX_RESULTS ,
                       "query":{
                           "bool":{
                               "must":[
@@ -35,7 +35,7 @@ class ESQ():
                                   {"range": {"timestamp": {"gte": period_init, "lte": period_end}}}
                               ]}},
                       }
-        result_query = ESQ.es.search(index=MF_SYNOP_INDEX,body=dict_query)
+        result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX,body=dict_query)
         ls_g_obs=[]
         for x in result_query['hits']['hits']:
             ls_g_obs.append(x['_source'])
@@ -45,7 +45,7 @@ class ESQ():
     @staticmethod
     def get_var_values_for_station_for_period(numer_sta, period_init, period_end, var):
         """ In this case, I will retrieve the values for a single variable for a station for a defined window frame. """
-        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": 1000,
+        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": Configuration.MAX_RESULTS,
                       "_source":[var, 'timestamp', 'date_iso'],
                       "query": {
                           "bool": {
@@ -54,7 +54,7 @@ class ESQ():
                                   {"range": {"timestamp": {"gte": period_init, "lte": period_end}}}
                               ]}},
                       }
-        result_query = ESQ.es.search(index=MF_SYNOP_INDEX, body=dict_query)
+        result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX, body=dict_query)
         ls_g_obs=[]
         for x in result_query['hits']['hits']:
             ls_g_obs.append(x['_source'])
@@ -65,11 +65,11 @@ class ESQ():
     @staticmethod
     def get_most_recent_var_values_for_station(numer_sta, var):
         """ To get the most recent observation values (1000) for a single variable for a single station."""
-        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": 1000,
+        dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": Configuration.MAX_RESULTS,
                       "_source": [var, 'timestamp', 'date_iso'],
                       "query": {"match": {'numer_sta': numer_sta}}}
 
-        result_query = ESQ.es.search(index=MF_SYNOP_INDEX, body=dict_query)
+        result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX, body=dict_query)
         ls_g_obs=[]
         for x in result_query['hits']['hits']:
             ls_g_obs.append(x['_source'])
@@ -118,7 +118,7 @@ class ESQ():
 
 
             if varname is not None:
-                dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": 1000,
+                dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": Configuration.MAX_RESULTS,
                               "_source": [varname, 'timestamp', 'date'],
                               "query": {
                                   "bool": {
@@ -133,7 +133,7 @@ class ESQ():
 
             else:
 
-                dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": 1000,
+                dict_query = {"sort": [{"date_iso": "desc"}], "from": 0, "size": Configuration.MAX_RESULTS,
                               "query": {
                                   "bool": {
                                       "must": [
@@ -144,7 +144,7 @@ class ESQ():
                               },
                               }
 
-            result_query = ESQ.es.search(index=MF_SYNOP_INDEX, body=dict_query)
+            result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX, body=dict_query)
 
             ls_results_per_year={}
             for x in result_query['hits']['hits']:
@@ -225,7 +225,7 @@ class ESQ():
 
                 ls_timestamps.append(dict_time)
 
-            dict_query = {"sort": [{"date_iso": "asc"}], "from": 0, "size": 1000,
+            dict_query = {"sort": [{"date_iso": "asc"}], "from": 0, "size": Configuration.MAX_RESULTS,
                           "query": {
                               "bool": {
                                   "must": [
@@ -235,7 +235,7 @@ class ESQ():
                               }
                           },
                           }
-            result_query = ESQ.es.search(index=MF_SYNOP_INDEX, body=dict_query)
+            result_query = ESQ.es.search(index=Configuration.MF_SYNOP_INDEX, body=dict_query)
 
             ls_results_per_year={}
             for x in result_query['hits']['hits']:
@@ -247,3 +247,30 @@ class ESQ():
                     ls_results_per_year[year].append(x['_source'])
 
             return ls_results_per_year
+
+    @staticmethod
+    def get_hist_for_station_time_period(numer_sta, init_timestamp, end_timestamp):
+        """
+            To get the historical data for a single station for a timestamp and a defined window range.
+            The user selects a station, and a time period.
+        """
+        x_init_date = datetime.datetime.fromtimestamp(int(init_timestamp))
+        x_end_date = datetime.datetime.fromtimestamp(int(end_timestamp))
+
+        if x_init_date.year!=x_end_date.year:
+            dict_response={}
+            dict_response['error']='The dates must be from the same year'
+            return dict_response
+        else:
+
+            curr_date = datetime.datetime.now()
+            init_data_year = 1996
+            end_data_year = curr_date.year
+            ls_obs={}
+            for x in range(init_data_year, (end_data_year+1)):
+
+                x_init = datetime.datetime(x, x_init_date.month, x_init_date.day, 0, 0, 0)
+                x_end = datetime.datetime(x, x_end_date.month, x_init_date.day, 0, 0, 0)
+
+                ls_obs[x]=ESQ.get_info_for_station_for_period(numer_sta,x_init.timestamp(),x_end.timestamp())
+            return ls_obs
